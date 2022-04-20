@@ -5,7 +5,9 @@ VisualStudioVersion = 17.0.32014.148
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Univie.Assistant.Crawler", "Univie.Assistant.Crawler\Univie.Assistant.Crawler.csproj", "{05C19C39-4547-4366-8D93-715CFA923DEE}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Univie.Assistant.Crawler.Test", "Univie.Assistant.Crawler.Test\Univie.Assistant.Crawler.Test.csproj", "{EA321755-8C30-44E7-8D76-7467BD85DD86}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Univie.Assistant.Crawler.Test", "Univie.Assistant.Crawler.Test\Univie.Assistant.Crawler.Test.csproj", "{EA321755-8C30-44E7-8D76-7467BD85DD86}"
+EndProject
+Project("{54A90642-561A-4BB1-A94E-469ADEE60C69}") = "Univie.Assistant.Frontend", "Univie.Assistant.Frontend\Univie.Assistant.Frontend.esproj", "{325B9BF9-F7B9-4913-BB13-D813F5824488}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +23,12 @@ Global
 		{EA321755-8C30-44E7-8D76-7467BD85DD86}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{EA321755-8C30-44E7-8D76-7467BD85DD86}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{EA321755-8C30-44E7-8D76-7467BD85DD86}.Release|Any CPU.Build.0 = Release|Any CPU
+		{325B9BF9-F7B9-4913-BB13-D813F5824488}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{325B9BF9-F7B9-4913-BB13-D813F5824488}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{325B9BF9-F7B9-4913-BB13-D813F5824488}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
+		{325B9BF9-F7B9-4913-BB13-D813F5824488}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{325B9BF9-F7B9-4913-BB13-D813F5824488}.Release|Any CPU.Build.0 = Release|Any CPU
+		{325B9BF9-F7B9-4913-BB13-D813F5824488}.Release|Any CPU.Deploy.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
