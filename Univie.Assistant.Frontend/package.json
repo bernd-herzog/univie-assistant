@@ -11,8 +11,10 @@
     "@types/react": "^18.0.5",
     "@types/react-dom": "^18.0.1",
     "jest-editor-support": "^30.0.2",
+    "leaflet": "^1.8.0",
     "react": "^18.0.0",
     "react-dom": "^18.0.0",
+    "react-leaflet": "^4.0.0",
     "react-scripts": "5.0.1",
     "typescript": "^4.6.3",
     "web-vitals": "^2.1.4"
@@ -40,5 +42,8 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "devDependencies": {
+    "@types/leaflet": "^1.7.9"
   }
 }
