@@ -1,12 +1,10 @@
 import React from 'react';
+import { CourseList } from '../Components/CourseList';
 
 export class CourseView extends React.Component<{}, {}> {
-    constructor(props: any) {
-        super(props)
-    }
-
-    render() {
-        return <>
-        </>;
-    }
+  render() {
+    return <>
+      <CourseList />
+    </>;
+  }
 }

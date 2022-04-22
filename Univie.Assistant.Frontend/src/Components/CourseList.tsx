@@ -1,12 +1,13 @@
+import { Button } from '@fluentui/react';
 import React from 'react';
+import { Navigator } from "../Shared/Navigator"
 
 export class CourseList extends React.Component<{}, {}> {
-    constructor(props: any) {
-        super(props)
-    }
+  render() {
+    return <>
+      Die Kursliste ist leer.
 
-    render() {
-        return <>
-        </>;
-    }
+      <Button text="Map" onClick={() => Navigator.getInstance().navigate("/map")} />
+    </>;
+  }
 }
