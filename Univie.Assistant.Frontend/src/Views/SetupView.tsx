@@ -24,7 +24,6 @@ export class SetupView extends React.Component<{}, ISetupViewState> {
 
   componentDidMount() {
     this.setState({ versionChecked: true });
-
     this.downloadIndex();
   }
 
@@ -50,7 +49,7 @@ export class SetupView extends React.Component<{}, ISetupViewState> {
 
     setTimeout(() => {
 
-      var total = index.Modules.length + index.Courses.length + index.Events.length;
+      var total = index.Modules.length + index.Courses.length + index.Events.length + index.Rooms.length;
       var batchSize = Math.min(total - start, 1000)
 
       for (var i = 0; i < batchSize; i++) {
@@ -63,9 +62,18 @@ export class SetupView extends React.Component<{}, ISetupViewState> {
           var course = index.Courses[start + i - index.Modules.length];
           courseStorage.storeCourse(course);
         }
-        else {
+        else if (start + i < index.Modules.length + index.Courses.length + index.Events.length) {
           var event = index.Events[start + i - index.Modules.length - index.Courses.length];
-          courseStorage.storeEvent(event);
+          courseStorage.storeEvent({
+            RoomID: event.RoomID,
+            CourseID: event.CourseID,
+            Start: event.Start,
+            End: event.End
+          });
+        }
+        else {
+          var room = index.Rooms[start + i - index.Modules.length - index.Courses.length - index.Events.length];
+          courseStorage.storeRoom(room);
         }
       }
 

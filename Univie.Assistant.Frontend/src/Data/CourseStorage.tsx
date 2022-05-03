@@ -18,7 +18,19 @@ interface Event {
   CourseID: string,
   Start: string,
   End: string,
-  Room: string,
+  RoomID: string,
+}
+
+interface Room {
+  RoomID: string,
+  RoomLatitude: number,
+  RoomLongitude: number,
+}
+
+interface CurrentEvent {
+  EventTable: string,
+  RoomLatitude: number,
+  RoomLongitude: number,
 }
 
 export class CourseStorage {
@@ -26,7 +38,9 @@ export class CourseStorage {
   private modules: { [id: string]: Module };
   private courses: { [id: string]: Course };
   private events: Event[];
+  private rooms: { [id: string]: Room };
 
+  //TODO: singleton
   constructor() {
     var indexData = localStorage.getItem('index-data');
     this.indexAvaliable = indexData !== null;
@@ -38,11 +52,36 @@ export class CourseStorage {
       this.modules = indexObject.modules;
       this.courses = indexObject.courses;
       this.events = indexObject.events;
+      this.rooms = indexObject.rooms;
     } else {
       this.modules = {};
       this.courses = {};
       this.events = [];
+      this.rooms = {};
     }
+  }
+
+  public getEvents(): Event[] {
+    return this.events;
+  }
+
+  public getRooms(): Room[] {
+    return [];
+  }
+
+  public getCurrentEvents(): CurrentEvent[] {
+    var activeEvents = this.events
+      .filter((event) => {
+        var now = Date.now();
+        return event.RoomID && (now - new Date(event.Start).getTime() > 0 && now - new Date(event.End).getTime() < 0);
+      })
+      .map((event) => {
+        var room = this.rooms[event.RoomID]
+        var course = this.courses[event.CourseID]
+        return { EventTable: "Kurs " + course?.LongName + " von " + new Date(event.Start).toLocaleTimeString("de-at", { timeStyle: "short" }) + " bis " + new Date(event.End).toLocaleTimeString("de-at", { timeStyle: "short" }), RoomLatitude: room.RoomLatitude, RoomLongitude: room.RoomLongitude } as CurrentEvent
+      });
+
+    return activeEvents;
   }
 
   public isDataLoaded(): boolean {
@@ -55,6 +94,7 @@ export class CourseStorage {
     this.modules = {};
     this.courses = {};
     this.events = [];
+    this.rooms = {};
   }
 
   public storeModule(module: Module) {
@@ -69,6 +109,10 @@ export class CourseStorage {
     this.events.push(event);
   }
 
+  public storeRoom(room: Room) {
+    this.rooms[room.RoomID] = room;
+  }
+
   public commit() {
     if (this.indexAvaliable)
       this.clear();
@@ -77,6 +121,7 @@ export class CourseStorage {
       modules: this.modules,
       courses: this.courses,
       events: this.events,
+      rooms: this.rooms,
     };
 
     var json = JSON.stringify(dataObject);

@@ -5,5 +5,6 @@
     public Module[] Modules { get; set; }
     public Course[] Courses { get; set; }
     public Event[] Events { get; set; }
+    public Room[] Rooms { get; set; }
   }
 }

@@ -7,12 +7,16 @@ namespace Univie.Assistant.IndexBuilder
     public Dictionary<string, Module> Modules { get; }
     public Dictionary<string, Course> Courses { get; }
     public List<Event> Events { get; }
+    public List<string> Rooms { get; }
+    public LocationUpdater LocationUpdater { get; }
 
     public IndexBuilder()
     {
       Modules = new Dictionary<string, Module>();
       Courses = new Dictionary<string, Course>();
       Events = new List<Event>();
+      Rooms = new List<string>();
+      LocationUpdater = new LocationUpdater();
     }
 
     public Index Build(string[] coursesFiles, string[] courseFiles)
@@ -22,7 +26,7 @@ namespace Univie.Assistant.IndexBuilder
         var xmlDocument = new XmlDocument();
         xmlDocument.Load(coursesFile);
 
-        BuildModule(xmlDocument.DocumentElement.SelectSingleNode("/structure"), null);
+        BuildModule(xmlDocument.DocumentElement, null);
       }
 
       foreach (var coursesFile in courseFiles)
@@ -33,11 +37,14 @@ namespace Univie.Assistant.IndexBuilder
         BuildCourseData(xmlDocument.DocumentElement);
       }
 
+      var rooms = LocationUpdater.UpdateLocations(Events);
+
       return new Index
       {
         Modules = Modules.Select(_ => _.Value).ToArray(),
         Courses = Courses.Select(_ => _.Value).ToArray(),
         Events = Events.ToArray(),
+        Rooms = rooms
       };
     }
 
@@ -56,7 +63,7 @@ namespace Univie.Assistant.IndexBuilder
 
           BuildModule(module, moduleID);
 
-          var courses = xmlNode.SelectNodes("./courses/course");
+          var courses = module.SelectNodes("./courses/course");
           foreach (var course in courses.Cast<XmlNode>())
           {
             BuildCourse(course, moduleID);
@@ -83,6 +90,11 @@ namespace Univie.Assistant.IndexBuilder
       {
         Courses[courseID] = new Course { ID = courseID, ModuleID = Courses[courseID].ModuleID, LongName = longname, Type = type };
       }
+      else
+      {
+        //Courses.Add(courseID, new Course { ID = courseID, ModuleID = parent, LongName = longname, Type = type });
+        throw new Exception("missing course");
+      }
 
       var events = course.SelectNodes("./groups/group/wwlong/wwevent");
       foreach (var @event in events.Cast<XmlNode>())
@@ -98,7 +110,16 @@ namespace Univie.Assistant.IndexBuilder
       var room = GetXPathValue(course, "./location/room");
       if (room != null)
       {
-        Events.Add(new Event { CourseID = courseID, Start = begin, End = end, Room = room });
+        if (Rooms.Contains(room) == false)
+          Rooms.Add(room);
+
+        Events.Add(new Event
+        {
+          CourseID = courseID,
+          Start = DateTime.Parse(begin).ToUniversalTime().ToString("s") + "Z",
+          End = DateTime.Parse(end).ToUniversalTime().ToString("s") + "Z",
+          RoomName = room
+        });
       }
     }
 

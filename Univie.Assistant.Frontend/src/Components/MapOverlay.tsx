@@ -3,29 +3,28 @@ import { DefaultButton, Stack, SearchBox, IContextualMenuProps } from '@fluentui
 import { Navigator } from "../Shared/Navigator"
 
 interface IMapOverlayState {
-  showAll: boolean
 }
 
-export class MapOverlay extends React.Component<{}, IMapOverlayState> {
-  constructor(props: any) {
-    super(props);
-    this.state = { showAll: true };
-  }
+interface IMapOverlayProps {
+  showAll: boolean,
+  onShowAllChanged: (showAll: boolean) => void
+}
 
+export class MapOverlay extends React.Component<IMapOverlayProps, IMapOverlayState> {
   private getMenuProps(): IContextualMenuProps {
     return {
       items: [
         {
           key: 'showAll',
           text: 'Zeige alle Kurse',
-          iconProps: { iconName: this.state.showAll ? 'CheckboxComposite' : 'Checkbox' },
-          onClick: () => { this.setState({ showAll: true }) }
+          iconProps: { iconName: this.props.showAll ? 'CheckboxComposite' : 'Checkbox' },
+          onClick: () => { this.props.onShowAllChanged(true) }
         },
         {
           key: 'showMine',
           text: 'Zeige meine Kurse',
-          iconProps: { iconName: !this.state.showAll ? 'CheckboxComposite' : 'Checkbox' },
-          onClick: () => { this.setState({ showAll: false }) }
+          iconProps: { iconName: !this.props.showAll ? 'CheckboxComposite' : 'Checkbox' },
+          onClick: () => { this.props.onShowAllChanged(false) }
         },
         {
           key: 'config',
