@@ -1,5 +1,7 @@
 import pako from 'pako';
 import { Buffer } from 'buffer';
+import { Stack } from '@fluentui/react';
+import { addBusinessDays, isAfter, isBefore, isPast, isFuture, startOfDay, endOfDay } from 'date-fns'
 
 interface Module {
   ID: string,
@@ -19,6 +21,7 @@ interface Event {
   Start: string,
   End: string,
   RoomID: string,
+  RoomName: string,
 }
 
 interface Room {
@@ -28,10 +31,18 @@ interface Room {
 }
 
 interface CurrentEvent {
-  EventTable: string,
+  EventTable: JSX.Element,
   RoomLatitude: number,
   RoomLongitude: number,
 }
+
+const groupBy = <T, K extends keyof any>(list: T[], getKey: (item: T) => K) =>
+  list.reduce((previous, currentItem) => {
+    const group = getKey(currentItem);
+    if (!previous[group]) previous[group] = [];
+    previous[group].push(currentItem);
+    return previous;
+  }, {} as Record<K, T[]>);
 
 export class CourseStorage {
   private indexAvaliable: boolean;
@@ -72,16 +83,69 @@ export class CourseStorage {
   public getCurrentEvents(): CurrentEvent[] {
     var activeEvents = this.events
       .filter((event) => {
-        var now = Date.now();
-        return event.RoomID && (now - new Date(event.Start).getTime() > 0 && now - new Date(event.End).getTime() < 0);
-      })
-      .map((event) => {
-        var room = this.rooms[event.RoomID]
-        var course = this.courses[event.CourseID]
-        return { EventTable: "Kurs " + course?.LongName + " von " + new Date(event.Start).toLocaleTimeString("de-at", { timeStyle: "short" }) + " bis " + new Date(event.End).toLocaleTimeString("de-at", { timeStyle: "short" }), RoomLatitude: room.RoomLatitude, RoomLongitude: room.RoomLongitude } as CurrentEvent
+        var now = new Date();
+        var endDate = new Date(event.End)
+
+        var endsInFuture = isFuture(endDate);
+
+        var tomorrow = endOfDay(now);
+
+        var endsToday = isBefore(endDate, tomorrow);
+        var isVO = this.courses[event?.CourseID].Type === "VO";
+
+        return isVO && event.RoomID && endsInFuture && endsToday;
       });
 
-    return activeEvents;
+    if (activeEvents.length == 0) {
+      activeEvents = this.events
+        .filter((event) => {
+          var now = new Date();
+          var endDate = new Date(event.End)
+
+          var endsInFuture = isFuture(endDate);
+
+          var tomorrow = endOfDay(now);
+          var endOfNextDay = addBusinessDays(tomorrow, 1);
+
+          var endsNextDay = isBefore(endDate, endOfNextDay);
+          var isVO = this.courses[event?.CourseID].Type === "VO";
+
+          return isVO && event.RoomID && endsInFuture && endsNextDay;
+        });
+    }
+
+    var grouped = groupBy(activeEvents, i => i.RoomID)
+
+    var eventList = Object.entries(grouped).map(([key, value]) => {
+      var room = this.rooms[key] as Room;
+
+      return {
+        EventTable: <>
+          <Stack tokens={{ childrenGap: 2 }} >
+            {value.sort((n1, n2) => isBefore(new Date(n1.Start), new Date(n2.Start)) ? -1 : 1).map(event => <>
+              <Stack horizontal tokens={{ childrenGap: 8 }} >
+                <span
+                  title={this.courses[event?.CourseID].LongName}
+                  style={{ width: 200, textOverflow: 'ellipsis', whiteSpace: 'nowrap', overflow: 'hidden' }}>
+                  {this.courses[event?.CourseID].LongName}
+                </span>
+                <span style={{ whiteSpace: 'nowrap' }}>{this.courses[event?.CourseID].Type}</span>
+                <span
+                  style={{ whiteSpace: 'nowrap' }}
+                  title={new Date(event.Start).toLocaleDateString()}>
+                  {new Date(event.Start).toLocaleTimeString("de-at", { timeStyle: "short" })} - {new Date(event.End).toLocaleTimeString("de-at", { timeStyle: "short" })}
+                </span>
+                <span title={event.RoomName}>[R]</span>
+              </Stack>
+            </>)}
+          </Stack>
+        </>,
+        RoomLatitude: room.RoomLatitude,
+        RoomLongitude: room.RoomLongitude
+      } as CurrentEvent
+    });
+
+    return eventList;
   }
 
   public isDataLoaded(): boolean {

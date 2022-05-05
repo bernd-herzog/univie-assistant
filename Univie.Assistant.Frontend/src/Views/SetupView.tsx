@@ -68,7 +68,8 @@ export class SetupView extends React.Component<{}, ISetupViewState> {
             RoomID: event.RoomID,
             CourseID: event.CourseID,
             Start: event.Start,
-            End: event.End
+            End: event.End,
+            RoomName: event.RoomName
           });
         }
         else {
