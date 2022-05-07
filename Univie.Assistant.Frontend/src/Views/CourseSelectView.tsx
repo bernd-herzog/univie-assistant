@@ -1,5 +1,5 @@
 ﻿import React from 'react';
-import { Button, CommandBar, ICommandBarItemProps, IconButton, PrimaryButton, SearchBox, Stack } from '@fluentui/react';
+import { CommandBar, PrimaryButton, SearchBox, Stack } from '@fluentui/react';
 import { Navigator } from "../Shared/Navigator"
 import { Card } from '../Components/Card';
 import { HeaderCommandBar } from '../Components/HeaderCommandBar';
@@ -26,7 +26,7 @@ export class CourseSelectView extends React.Component<{}, {
       <HeaderCommandBar><CommandBar items={[
         {
           key: 'back',
-          text: 'Zurück zur Kursauswahl',
+          text: 'Zurück',
           iconProps: { iconName: 'Back' },
           onClick: () => { Navigator.getInstance().navigate("/courses") }
         },
@@ -47,7 +47,6 @@ export class CourseSelectView extends React.Component<{}, {
             var machingCourses = courses.filter(_ => _.LongName.toLowerCase().match(searchText.toLowerCase() ?? ''))
             this.setState({ courses: machingCourses });
           }} />
-
 
         <Stack tokens={{ childrenGap: 10 }}>
           {this.state.courses.map(course => {
@@ -73,14 +72,12 @@ export class CourseSelectView extends React.Component<{}, {
                       CourseStorage.getInstance().addUserCourse(course.ID)
                       Navigator.getInstance().navigate("/courses")
                     }} />
-
                 </Stack>
               </div>
             </>)
           })}
         </Stack>
       </Card>
-
     </>;
   }
 

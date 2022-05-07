@@ -10,16 +10,16 @@ export class CourseView extends React.Component<{}, {}> {
 
   _items: ICommandBarItemProps[] = [
     {
+      key: 'newItem',
+      text: 'Hinzufügen',
+      iconProps: { iconName: 'Add' },
+      onClick: () => { Navigator.getInstance().navigate("/courseSelect") }
+    },
+    {
       key: 'back',
       text: 'Zurück zur Karte',
       iconProps: { iconName: 'Nav2DMapView' },
       onClick: () => { Navigator.getInstance().navigate("/map") }
-    },
-    {
-      key: 'newItem',
-      text: 'Kurs Hinzufügen',
-      iconProps: { iconName: 'Add' },
-      onClick: () => { Navigator.getInstance().navigate("/courseSelect") }
     },
   ];
 

@@ -7,8 +7,6 @@ const header_card: React.CSSProperties = {
   borderWidth: 28,
   borderTopWidth: 0,
   borderColor: 'grey',
-  maxWidth: 856,
-  width: "calc(100% - 282px)",
   display: "block",
   position: "fixed",
   height: 40,
