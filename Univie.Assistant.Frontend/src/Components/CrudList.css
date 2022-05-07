@@ -1,0 +1,7 @@
+.crud_list_row .crud_list_button {
+  display: none !important;
+}
+
+.crud_list_row:hover .crud_list_button {
+  display: block !important;
+}

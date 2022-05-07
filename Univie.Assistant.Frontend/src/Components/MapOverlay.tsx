@@ -7,7 +7,9 @@ interface IMapOverlayState {
 
 interface IMapOverlayProps {
   showAll: boolean,
-  onShowAllChanged: (showAll: boolean) => void
+  showVo: boolean,
+  onShowAllChanged: (show: boolean) => void
+  onShowVoChanged: (show: boolean) => void
 }
 
 export class MapOverlay extends React.Component<IMapOverlayProps, IMapOverlayState> {
@@ -18,13 +20,13 @@ export class MapOverlay extends React.Component<IMapOverlayProps, IMapOverlaySta
           key: 'showAll',
           text: 'Zeige alle Kurse',
           iconProps: { iconName: this.props.showAll ? 'CheckboxComposite' : 'Checkbox' },
-          onClick: () => { this.props.onShowAllChanged(true) }
+          onClick: () => { this.props.onShowAllChanged(!this.props.showAll) }
         },
         {
-          key: 'showMine',
-          text: 'Zeige meine Kurse',
-          iconProps: { iconName: !this.props.showAll ? 'CheckboxComposite' : 'Checkbox' },
-          onClick: () => { this.props.onShowAllChanged(false) }
+          key: 'showVo',
+          text: 'Zeige nur Vorlesungen',
+          iconProps: { iconName: this.props.showVo ? 'CheckboxComposite' : 'Checkbox' },
+          onClick: () => { this.props.onShowVoChanged(!this.props.showVo) }
         },
         {
           key: 'config',
