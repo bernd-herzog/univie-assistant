@@ -51,12 +51,12 @@ export class MapView extends React.Component<{}, {
                 <Popup>
                   <Stack
                     tokens={{ childrenGap: 2 }}
-                    style={{ maxHeight: '70vh', overflow: 'scroll' }}>
+                    style={{ maxHeight: '70vh', overflow: 'auto' }}>
                     {
                       mapEntry.events
                         .sort((n1, n2) => isBefore(new Date(n1.event.Start), new Date(n2.event.Start)) ? -1 : 1)
                         .map(event => {
-                          return this.renderEvent(event);
+                          return this.renderPopupListEntry(event);
                         })
                     }
                   </Stack>
@@ -69,21 +69,23 @@ export class MapView extends React.Component<{}, {
     </>;
   }
 
-  renderEvent(event: IMapEvent): JSX.Element {
+  renderPopupListEntry(event: IMapEvent): JSX.Element {
     return (
-      <Stack horizontal tokens={{ childrenGap: 8 }} key={event.course.ID} >
-        <span
-          title={event.course.LongName}
-          style={{ width: 200, textOverflow: 'ellipsis', whiteSpace: 'nowrap', overflow: 'hidden' }}>
-          {event.course.LongName}
-        </span>
-        <span style={{ whiteSpace: 'nowrap' }}>{event.course.Type}</span>
-        <span
-          style={{ whiteSpace: 'nowrap' }}
-          title={new Date(event.event.Start).toLocaleDateString()}>
-          {new Date(event.event.Start).toLocaleTimeString("de-at", { timeStyle: "short" })} - {new Date(event.event.End).toLocaleTimeString("de-at", { timeStyle: "short" })}
-        </span>
-        <span title={event.event.RoomName}>[R]</span>
+      <Stack key={event.course.ID} style={{ border: "solid #AAAAAA 1px", background: "#EEEEEE", padding: "2px" }}>
+        <Stack horizontal tokens={{ childrenGap: 8 }} >
+          <span
+            title={event.course.LongName}
+            style={{ width: 200, textOverflow: 'ellipsis', whiteSpace: 'nowrap', overflow: 'hidden' }}>
+            {event.course.LongName}
+          </span>
+          <span style={{ whiteSpace: 'nowrap' }}>{event.course.Type}</span>
+          <span
+            style={{ whiteSpace: 'nowrap' }}
+            title={new Date(event.event.Start).toLocaleDateString()}>
+            {new Date(event.event.Start).toLocaleTimeString("de-at", { timeStyle: "short" })} - {new Date(event.event.End).toLocaleTimeString("de-at", { timeStyle: "short" })}
+          </span>
+        </Stack>
+        <span style={{ fontSize: "0.75em" }} title={event.event.RoomName}>{event.event.RoomName}</span>
       </Stack>
     )
   }
