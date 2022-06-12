@@ -4,7 +4,7 @@ import { Navigator } from "../Shared/Navigator"
 import { Card } from '../Components/Card';
 import { HeaderCommandBar } from '../Components/HeaderCommandBar';
 import { QuestionCalloutWrapper } from '../Components/QuestionCallout';
-import { Course, CourseStorage, Module } from '../Data/CourseStorage';
+import { CourseStorage } from '../Data/CourseStorage';
 
 export class CourseView extends React.Component<{}, {}> {
 
@@ -14,6 +14,12 @@ export class CourseView extends React.Component<{}, {}> {
       text: 'Hinzufügen',
       iconProps: { iconName: 'Add' },
       onClick: () => { Navigator.getInstance().navigate("/courseSelect") }
+    },
+    {
+      key: 'newRandom',
+      text: 'Zufallsstudium',
+      iconProps: { iconName: 'Add' },
+      onClick: () => { Navigator.getInstance().navigate("/randomSelect") }
     },
     {
       key: 'back',
@@ -34,53 +40,78 @@ export class CourseView extends React.Component<{}, {}> {
             CourseStorage.getInstance().getUserCourses().map(courseID => {
               var course = CourseStorage.getInstance().getCourse(courseID);
               return (
-                <>
-                  <div
-                    style={{
-                      padding: 12,
-                      backgroundColor: '#FFFFFF',
-                      border: '1px solid #CCCCCC'
-                    }}>
 
-                    <Stack tokens={{ childrenGap: 4 }}>
+                <div
+                  key={courseID}
+                  style={{
+                    padding: 12,
+                    backgroundColor: '#FFFFFF',
+                    border: '1px solid #CCCCCC'
+                  }}>
 
-                      {this.getModules(course).map((module, index) => <><span style={{ marginLeft: index * 10 }}>{module.Name}</span></>)}
-                      <span><b>{course.LongName}</b> ({course.Type})</span>
+                  <Stack tokens={{ childrenGap: 4 }}>
 
-                      <QuestionCalloutWrapper
-                        titleText={'Löschen'}
-                        questionText={'Möchten Sie den Kurs wirklich löschen?'}
-                        okText={'Löschen'}
-                        cancelText={'Abbrechen'}
-                        onOkPressed={() => {
-                          CourseStorage.getInstance().removeUserCourse(courseID);
-                          this.setState({});
-                        }} >
-                        <IconButton
-                          iconProps={{ iconName: 'Delete' }}
-                          title="Delete"
-                          ariaLabel="Delete" />
-                      </QuestionCalloutWrapper>
-                    </Stack>
-                  </div>
-                </>);
+                    {CourseStorage.getModulesTreeFromCourse(course.ModuleID).map((module, index) => <span key={index} style={{ marginLeft: index * 10 }}>{module.Name}</span>)}
+                    <span><b>{course.LongName}</b> ({course.Type})</span>
+
+                    <QuestionCalloutWrapper
+                      titleText={'Löschen'}
+                      questionText={'Möchten Sie den Kurs wirklich löschen?'}
+                      okText={'Löschen'}
+                      cancelText={'Abbrechen'}
+                      onOkPressed={() => {
+                        CourseStorage.getInstance().removeUserCourse(courseID);
+                        this.setState({});
+                      }} >
+                      <IconButton
+                        iconProps={{ iconName: 'Delete' }}
+                        title="Delete"
+                        ariaLabel="Delete" />
+                    </QuestionCalloutWrapper>
+                  </Stack>
+                </div>
+              );
+            })
+          }
+
+          {
+            CourseStorage.getInstance().getRandomCourses().map(seed => {
+              return (
+
+                <div
+                  key={seed}
+                  style={{
+                    padding: 12,
+                    backgroundColor: '#FFFFFF',
+                    border: '1px solid #CCCCCC'
+                  }}>
+
+                  <Stack tokens={{ childrenGap: 4 }}>
+
+
+                    <span><b>Zufallsstudium</b> ({seed})</span>
+
+                    <QuestionCalloutWrapper
+                      titleText={'Löschen'}
+                      questionText={'Möchten Sie den Kurs wirklich löschen?'}
+                      okText={'Löschen'}
+                      cancelText={'Abbrechen'}
+                      onOkPressed={() => {
+                        CourseStorage.getInstance().removeRandomCourse(seed);
+                        this.setState({});
+                      }} >
+                      <IconButton
+                        iconProps={{ iconName: 'Delete' }}
+                        title="Delete"
+                        ariaLabel="Delete" />
+                    </QuestionCalloutWrapper>
+                  </Stack>
+                </div>
+              );
             })
           }
         </Stack>
       </Card>
     </>;
-  }
-
-  getModules(course: Course): Module[] {
-    var modules: Module[] = []
-
-    var module = CourseStorage.getInstance().getModule(course.ModuleID);
-    modules.push(module);
-
-    while (module.ModuleID) {
-      module = CourseStorage.getInstance().getModule(module.ModuleID);
-      modules.push(module);
-    }
-    return modules.reverse();
   }
 }

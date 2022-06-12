@@ -3,6 +3,7 @@ import { Routes, Route } from "react-router-dom";
 import { MapView } from "./Views/MapView"
 import { CourseView } from "./Views/CourseView"
 import { CourseSelectView } from "./Views/CourseSelectView"
+import { RandomSelectView } from "./Views/RandomSelectView"
 import { Layout } from './Shared/Layout';
 import { CourseStorage } from './Data/CourseStorage';
 import { Navigator } from "./Shared/Navigator"
@@ -25,6 +26,7 @@ export default class App extends React.Component<{}, {}> {
           <Route path="/map" element={<MapView />} />
           <Route path="/courses" element={<CourseView />} />
           <Route path="/courseSelect" element={<CourseSelectView />} />
+          <Route path="/randomSelect" element={<RandomSelectView />} />
           <Route path="/init" element={<SetupView />} />
           <Route index element={<MapView />} />
         </Route>

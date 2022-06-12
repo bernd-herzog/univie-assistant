@@ -1,6 +1,8 @@
 import pako from 'pako';
 import { Buffer } from 'buffer';
-import { addBusinessDays, isAfter, isBefore, isPast, isFuture, startOfDay, endOfDay } from 'date-fns'
+import { addBusinessDays, isBefore, isFuture, endOfDay } from 'date-fns'
+import * as rnd from '../Shared/random';
+import groupBy from '../Shared/groupBy';
 
 export interface Module {
   ID: string,
@@ -181,6 +183,38 @@ export class CourseStorage {
     return userCourses
   }
 
+  public getUserRandomCourses(): string[] {
+    var randomCourses = this.getRandomCourses();
+
+    if (randomCourses.length == 0)
+      return []
+
+
+    var currentEvents = this.getCurrentEvents().filter(event => this.getCourse(event.CourseID).Type == "VO");
+
+    var events = currentEvents.map(event => {
+      var course = this.getCourse(event.CourseID)
+      var moduleTree = CourseStorage.getModulesTreeFromCourse(course.ModuleID)
+      return moduleTree.map((module, index) => ({ module: module, event: event, level: index }))
+    })
+
+    var groupedEvents = groupBy(events.flat(), item => item.module.ID);
+    var eventList = Object.entries(groupedEvents);
+
+    var filteredEvents = eventList.filter(([moduleID, event]) => event.length > 4 && event[0].level > 1)
+
+    if (filteredEvents.length == 0)
+      return []
+
+    var seed = rnd.cyrb128(randomCourses[0])
+    var rand = rnd.sfc32(seed[0], seed[1], seed[2], seed[3]);
+
+    var randomNumber = Math.floor(rand() * filteredEvents.length);
+    var eventSelection = filteredEvents[randomNumber];
+
+    return eventSelection[1].map(event => event.event.CourseID)
+  }
+
   public addUserCourse(courseID: string) {
     var userCoursesData = localStorage.getItem('user-courses');
     var userCourses: string[] = JSON.parse(userCoursesData ?? '[]');
@@ -200,5 +234,47 @@ export class CourseStorage {
 
     var json = JSON.stringify(userCourses);
     localStorage.setItem('user-courses', json);
+  }
+
+  public getRandomCourses(): string[] {
+    var userCoursesData = localStorage.getItem('random-courses');
+    var userCourses = JSON.parse(userCoursesData ?? '[]')
+    return userCourses
+  }
+
+  public addRandomCourse(seed: string) {
+    var userCoursesData = localStorage.getItem('random-courses');
+    var userCourses: string[] = JSON.parse(userCoursesData ?? '[]');
+
+    userCourses.push(seed);
+
+    var json = JSON.stringify(userCourses);
+    localStorage.setItem('random-courses', json);
+  }
+
+
+  public removeRandomCourse(courseID: string) {
+    var userCoursesData = localStorage.getItem('random-courses');
+    var userCourses: string[] = JSON.parse(userCoursesData ?? '[]');
+
+    const index = userCourses.indexOf(courseID);
+    userCourses.splice(index, 1);
+
+    var json = JSON.stringify(userCourses);
+    localStorage.setItem('random-courses', json);
+  }
+
+  public static getModulesTreeFromCourse(moduleID: string): Module[] {
+    var modules: Module[] = []
+
+    var module = CourseStorage.getInstance().getModule(moduleID);
+    modules.push(module);
+
+    while (module.ModuleID) {
+      module = CourseStorage.getInstance().getModule(module.ModuleID);
+      modules.push(module);
+    }
+
+    return modules.reverse();
   }
 }

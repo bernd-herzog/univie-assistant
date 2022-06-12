@@ -9,7 +9,12 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Univie.Assistant.Crawler.Te
 EndProject
 Project("{54A90642-561A-4BB1-A94E-469ADEE60C69}") = "Univie.Assistant.Frontend", "Univie.Assistant.Frontend\Univie.Assistant.Frontend.esproj", "{325B9BF9-F7B9-4913-BB13-D813F5824488}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Univie.Assistant.IndexBuilder", "Univie.Assistant.IndexBuilder\Univie.Assistant.IndexBuilder.csproj", "{229F8CD6-A821-4444-BDEE-98326A4CCA8A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Univie.Assistant.IndexBuilder", "Univie.Assistant.IndexBuilder\Univie.Assistant.IndexBuilder.csproj", "{229F8CD6-A821-4444-BDEE-98326A4CCA8A}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{1084BD2F-0287-4849-8E2E-16244350B7D5}"
+	ProjectSection(SolutionItems) = preProject
+		.editorconfig = .editorconfig
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

@@ -5,12 +5,6 @@ import { Card } from '../Components/Card';
 import { HeaderCommandBar } from '../Components/HeaderCommandBar';
 import { CourseStorage, Course, Module } from '../Data/CourseStorage';
 
-interface B {
-  key: string,
-  name: string,
-  description: string,
-}
-
 export class CourseSelectView extends React.Component<{}, {
   courses: Course[]
 }> {
@@ -22,6 +16,7 @@ export class CourseSelectView extends React.Component<{}, {
   }
 
   render() {
+    var i = 0;
     return <>
       <HeaderCommandBar><CommandBar items={[
         {
@@ -52,8 +47,9 @@ export class CourseSelectView extends React.Component<{}, {
           {this.state.courses.map(course => {
             var userCourses = CourseStorage.getInstance().getUserCourses();
 
-            return (<>
+            return (
               <div
+                key={i++}
                 style={{
                   padding: 12,
                   backgroundColor: '#FFFFFF',
@@ -61,7 +57,7 @@ export class CourseSelectView extends React.Component<{}, {
                 }}>
 
                 <Stack tokens={{ childrenGap: 4 }}>
-                  {this.getModules(course).map((module, index) => <><span style={{ marginLeft: index * 10 }}>{module.Name}</span></>)}
+                  {CourseStorage.getModulesTreeFromCourse(course.ModuleID).map((module, index) => <span key={index} style={{ marginLeft: index * 10 }}>{module.Name}</span>)}
                   <span><b>{course.LongName}</b> ({course.Type})</span>
 
                   <PrimaryButton
@@ -74,24 +70,10 @@ export class CourseSelectView extends React.Component<{}, {
                     }} />
                 </Stack>
               </div>
-            </>)
+            )
           })}
         </Stack>
       </Card>
     </>;
-  }
-
-  getModules(course: Course): Module[] {
-    var modules: Module[] = []
-
-    var module = CourseStorage.getInstance().getModule(course.ModuleID);
-    modules.push(module);
-
-    while (module.ModuleID) {
-      module = CourseStorage.getInstance().getModule(module.ModuleID);
-      modules.push(module);
-    }
-
-    return modules.reverse();
   }
 }
