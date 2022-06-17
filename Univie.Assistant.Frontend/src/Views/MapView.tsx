@@ -3,7 +3,7 @@ import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet'
 import { MapOverlay } from '../Components/MapOverlay';
 import * as CourseStorage from '../Data/CourseStorage';
 import { Stack } from '@fluentui/react';
-import { isBefore } from 'date-fns'
+import { isBefore, isFuture } from 'date-fns'
 import groupBy from '../Shared/groupBy';
 
 export class MapView extends React.Component<{}, {
@@ -112,15 +112,7 @@ class MapController {
 
   public getLocationList(showVo: boolean, showAll: boolean): IMapRoom[] {
 
-    var currentEvents = this._courseStorage.getCurrentEvents();
-    var userRandomCourses = this._courseStorage.getUserRandomCourses();
-
-    var eventsToShow = currentEvents.filter(event => {
-      var isVO = this._courseStorage.getCourse(event.CourseID).Type == "VO";
-      var isOwn = this._courseStorage.getUserCourses().includes(event.CourseID);
-      var isRandomCourse = userRandomCourses.includes(event.CourseID);
-      return (isVO || showVo == false) && (isOwn || isRandomCourse || showAll);
-    });
+    var eventsToShow = this.getDayEvents(showVo, showAll);
 
     var groupedEvents = groupBy(eventsToShow, item => item.RoomID);
     var locationList = Object.entries(groupedEvents);
@@ -138,5 +130,29 @@ class MapController {
     });
 
     return resolvedEvents;
+  }
+
+  private getDayEvents(showVo: boolean, showAll: boolean): CourseStorage.Event[] {
+
+    for (var i = 0; i < 24; i++) {
+      var currentEvents = this._courseStorage.getCurrentEvents(i);
+      var userRandomCourses = this._courseStorage.getUserRandomCourses(i);
+
+      var eventsToShow = currentEvents.filter(event => {
+        var endDate = new Date(event.End)
+        var endsInFuture = isFuture(endDate);
+
+        var isVO = this._courseStorage.getCourse(event.CourseID).Type == "VO";
+        var isOwn = this._courseStorage.getUserCourses().includes(event.CourseID);
+        var isRandomCourse = userRandomCourses.includes(event.CourseID);
+        return (isVO || showVo === false) && (isOwn || isRandomCourse || showAll) && endsInFuture;
+      });
+
+      if (eventsToShow.length !== 0) {
+        return eventsToShow
+      }
+    }
+
+    return [];
   }
 }

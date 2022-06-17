@@ -1,6 +1,6 @@
 import pako from 'pako';
 import { Buffer } from 'buffer';
-import { addBusinessDays, isBefore, isFuture, endOfDay } from 'date-fns'
+import { isBefore, endOfDay, startOfDay, isAfter, addDays } from 'date-fns'
 import * as rnd from '../Shared/random';
 import groupBy from '../Shared/groupBy';
 
@@ -109,39 +109,25 @@ export class CourseStorage {
     return this.rooms[id];
   }
 
-  public getCurrentEvents(): Event[] {
+  public getCurrentEvents(daysToAdd: number): Event[] {
+    var now = new Date();
+    var today = startOfDay(now);
+    var tomorrow = endOfDay(now);
+
+    if (daysToAdd !== 0) {
+      today = addDays(today, daysToAdd);
+      tomorrow = addDays(tomorrow, daysToAdd);
+    }
+
     var activeEvents = this.events
       .filter((event) => {
-        var now = new Date();
         var endDate = new Date(event.End)
 
-        var endsInFuture = isFuture(endDate);
-
-        var tomorrow = endOfDay(now);
-
+        var startsToday = isAfter(endDate, today);
         var endsToday = isBefore(endDate, tomorrow);
-        var isVO = this.courses[event?.CourseID].Type === "VO";
 
-        return isVO && event.RoomID && endsInFuture && endsToday;
+        return event.RoomID && startsToday && endsToday;
       });
-
-    if (activeEvents.length == 0) {
-      activeEvents = this.events
-        .filter((event) => {
-          var now = new Date();
-          var endDate = new Date(event.End)
-
-          var endsInFuture = isFuture(endDate);
-
-          var tomorrow = endOfDay(now);
-          var endOfNextDay = addBusinessDays(tomorrow, 1);
-
-          var endsNextDay = isBefore(endDate, endOfNextDay);
-          var isVO = this.courses[event?.CourseID].Type === "VO";
-
-          return event.RoomID && endsInFuture && endsNextDay;
-        });
-    }
 
     return activeEvents;
   }
@@ -183,14 +169,13 @@ export class CourseStorage {
     return userCourses
   }
 
-  public getUserRandomCourses(): string[] {
+  public getUserRandomCourses(daysToAdd: number): string[] {
     var randomCourses = this.getRandomCourses();
 
     if (randomCourses.length == 0)
       return []
 
-
-    var currentEvents = this.getCurrentEvents().filter(event => this.getCourse(event.CourseID).Type == "VO");
+    var currentEvents = this.getCurrentEvents(daysToAdd).filter(event => this.getCourse(event.CourseID).Type == "VO");
 
     var events = currentEvents.map(event => {
       var course = this.getCourse(event.CourseID)
@@ -201,7 +186,7 @@ export class CourseStorage {
     var groupedEvents = groupBy(events.flat(), item => item.module.ID);
     var eventList = Object.entries(groupedEvents);
 
-    var filteredEvents = eventList.filter(([moduleID, event]) => event.length > 4 && event[0].level > 1)
+    var filteredEvents = eventList.filter(([moduleID, event]) => event.length > 2 && event[0].level > 1)
 
     if (filteredEvents.length == 0)
       return []
